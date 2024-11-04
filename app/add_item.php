@@ -125,30 +125,49 @@
             $anio = $_POST['anio'];
 
             // Validación del formato de la matrícula usando una expresión regular en PHP
-    	if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) {
+    	if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) 
+    	{
         $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (por ejemplo, 1234ABC).';
     	} 
     	else 
     	{
-        // Ejecuta la consulta de inserción solo si la matrícula es válida
-        $query = "INSERT INTO coches (matricula, marca_modelo, color, kilometros, CV, año) VALUES ('$nMatricula', '$marcamodelo', '$color', '$kms', '$cv', '$anio')";
-        $result = mysqli_query($conn, $query);
+        	// Usar una consulta preparada para insertar los datos en la base de datos
+                $query = "INSERT INTO coches (matricula, marca_modelo, color, kilometros, CV, año) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $conn->prepare($query);
 
-        if ($result) 
-        {
-            echo "<p style='color: green;'>Coche añadido correctamente.</p>";
-        } 
-        else 
-        {
-            if ($conn->errno === 1062) {
-                $error_message = 'La matrícula ya está registrada, prueba con otra.';
-            } else {
-                $error_message = 'Error, prueba con otros datos.';
-            }
-        }
+                if ($stmt) 
+                {
+                    // Ligar los parámetros a la consulta
+                    // "sssiii" indica que los tres primeros son cadenas de texto y los tres últimos son enteros
+                    $stmt->bind_param("sssiii", $nMatricula, $marcamodelo, $color, $kms, $cv, $anio);
+
+                    // Ejecutar la consulta y verificar el resultado
+                    if ($stmt->execute()) 
+                    {
+                        echo "<p style='color: green;'>Coche añadido correctamente.</p>";
+                    } 
+                    else 
+                    {
+                        if ($conn->errno === 1062) 
+                        {
+                            $error_message = 'La matrícula ya está registrada, prueba con otra.';
+                        } 
+                        else 
+                        {
+                            $error_message = 'Error, prueba con otros datos.';
+                        }
+                    }
+
+                    // Cerrar el statement
+                    $stmt->close();
+                } 
+                else 
+                {
+                    $error_message = 'Error al preparar la consulta.';
+                }
+        }	
     	}
-        }
-
+        
         // Mostrar mensaje de error si existe
         if ($error_message) {
             echo "<p style='color: red;'>" . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . "</p>";
