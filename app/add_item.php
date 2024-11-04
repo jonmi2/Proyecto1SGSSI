@@ -124,21 +124,29 @@
             $cv = $_POST['cv'];
             $anio = $_POST['anio'];
 
-            // Ejecuta la consulta de inserción
-            $query = "INSERT INTO coches (matricula, marca_modelo, color, kilometros, CV, año) VALUES ('$nMatricula', '$marcamodelo', '$color', '$kms', '$cv', '$anio')";
-            $result = mysqli_query($conn, $query);
+            // Validación del formato de la matrícula usando una expresión regular en PHP
+    	if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) {
+        $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (por ejemplo, 1234ABC).';
+    	} 
+    	else 
+    	{
+        // Ejecuta la consulta de inserción solo si la matrícula es válida
+        $query = "INSERT INTO coches (matricula, marca_modelo, color, kilometros, CV, año) VALUES ('$nMatricula', '$marcamodelo', '$color', '$kms', '$cv', '$anio')";
+        $result = mysqli_query($conn, $query);
 
-            if ($result) {
-                // Mensaje de éxito
-                 echo "<p style='color: green;'>Coche añadido correctamente.</p>";
+        if ($result) 
+        {
+            echo "<p style='color: green;'>Coche añadido correctamente.</p>";
+        } 
+        else 
+        {
+            if ($conn->errno === 1062) {
+                $error_message = 'La matrícula ya está registrada, prueba con otra.';
             } else {
-                // Muestra un mensaje de error
-                if ($conn->errno === 1062) {
-                    $error_message = 'La matrícula ya está registrada, prueba con otra.';
-                } else {
-                    $error_message = 'Error, prueba con otros datos.';
-                }
+                $error_message = 'Error, prueba con otros datos.';
             }
+        }
+    	}
         }
 
         // Mostrar mensaje de error si existe
@@ -147,7 +155,7 @@
         }
 
         // Formulario para agregar nuevos datos
-        echo '<form id="item_add_form" action="add_item.php" method="post">';
+        echo '<form id="item_add_form" action="add_item.php" method="post" onsubmit="return validarMatricula();">';
         echo '<label for="nMatricula">Matrícula:</label>';
         echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="marcamodelo">Marca y modelo:</label>';
