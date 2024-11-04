@@ -143,23 +143,23 @@
 
         // Mostrar mensaje de error si existe
         if ($error_message) {
-            echo "<p style='color: red;'>$error_message</p>";
+            echo "<p style='color: red;'>" . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . "</p>";
         }
 
         // Formulario para agregar nuevos datos
         echo '<form id="item_add_form" action="add_item.php" method="post">';
         echo '<label for="nMatricula">Matrícula:</label>';
-        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula) . '" required>';
+        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="marcamodelo">Marca y modelo:</label>';
-        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars($marcamodelo) . '" required>';
+        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars($marcamodelo, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="color">Color:</label>';
-        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color) . '" required>';
+        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="kms">Kilómetros:</label>';
-        echo '<input type="text" id="kms" name="kms" value="' . htmlspecialchars($kms) . '" required>';
+        echo '<input type="text" id="kms" name="kms" value="' . htmlspecialchars($kms, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="cv">Caballos:</label>';
-        echo '<input type="text" id="cv" name="cv" value="' . htmlspecialchars($cv) . '" required>';
+        echo '<input type="text" id="cv" name="cv" value="' . htmlspecialchars($cv, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="anio">Año:</label>';
-        echo '<input type="text" id="anio" name="anio" value="' . htmlspecialchars($anio) . '" required>';
+        echo '<input type="text" id="anio" name="anio" value="' . htmlspecialchars($anio, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<button id="item_add_submit" name="item_add_submit" type="submit">Agregar Coche</button>';
         echo '</form>';
         ?>
