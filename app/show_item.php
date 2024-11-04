@@ -84,14 +84,13 @@
     $query = mysqli_query($conn, "SELECT * FROM coches WHERE matricula='$item'");
 
     if ($row = mysqli_fetch_assoc($query)) {
-            echo "<div class='item-details'>";
-            echo "<p><strong>Marca y Modelo:</strong> {$row['marca_modelo']}</p>";
-            echo "<p><strong>Matrícula:</strong> {$row['matricula']}</p>";
-            echo "<p><strong>Color:</strong> {$row['color']}</p>";
-            echo "<p><strong>Kilómetros:</strong> {$row['kilometros']} km</p>";
-            echo "<p><strong>Caballos de fuerza (CV):</strong> {$row['CV']}</p>";
-            echo "<p><strong>Año:</strong> {$row['año']}</p>";
-            echo "</div>";
+        echo "<p><strong>Marca y Modelo:</strong> " . htmlspecialchars($row['marca_modelo'], ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "<p><strong>Matrícula:</strong> " . htmlspecialchars($row['matricula'], ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "<p><strong>Color:</strong> " . htmlspecialchars($row['color'], ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "<p><strong>Kilómetros:</strong> " . htmlspecialchars($row['kilometros'], ENT_QUOTES, 'UTF-8') . " km</p>";
+        echo "<p><strong>Caballos de fuerza (CV):</strong> " . htmlspecialchars($row['CV'], ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "<p><strong>Año:</strong> " . htmlspecialchars($row['año'], ENT_QUOTES, 'UTF-8') . "</p>";
+        echo "</div>";
         } else {
             echo "<p class='not-found'>Coche no encontrado.</p>";
         }

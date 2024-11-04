@@ -149,8 +149,9 @@ mysqli_close($conn);
         </form>
 	<!-- Mostrar errores en caso de haberlos en ROJO -->
         <?php if ($error): ?>
-            <p style="color: red;"><?php echo $error; ?></p>
-        <?php endif; ?>
+    		<p style="color: red;"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+	<?php endif; ?>
+
     </div>
 	
     <nav>

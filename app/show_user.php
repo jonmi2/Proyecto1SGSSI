@@ -112,11 +112,11 @@
 
         if ($row = mysqli_fetch_assoc($query)) {
             echo "<div class='content'>";
-            echo "<p>Nombre: {$row['nombre_apellidos']}</p>";
-            echo "<p>DNI: {$row['dni']}</p>";
-            echo "<p>Teléfono: {$row['telefono']}</p>";
-            echo "<p>Fecha de Nacimiento: {$row['fecha_nacimiento']}</p>";
-            echo "<p>Email: {$row['email']}</p>";
+            echo "<p>Nombre: " . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . "</p>";
+            echo "<p>DNI: " . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . "</p>";
+            echo "<p>Teléfono: " . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . "</p>";
+            echo "<p>Fecha de Nacimiento: " . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . "</p>";
+            echo "<p>Email: " . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . "</p>";
             echo "</div>";
         } else {
             echo "<div class='content'><p>Usuario no encontrado.</p></div>";
@@ -129,6 +129,7 @@
         <div class="button-container">
             <a href="index.php" class="button btn-primary">Inicio (se cerrará la sesión del usuario)</a>
             <a href="http://localhost:81/modify_user.php?user=<?php echo urlencode($user); ?>" class="button btn-success">Modificar datos</a>
+
         </div>
     </div>
 </body>

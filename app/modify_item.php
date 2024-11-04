@@ -161,24 +161,24 @@
 
         // Mostrar mensaje de error si existe
         if ($error_message) {
-            echo "<p style='color: red;'>$error_message</p>";
-        }
+    		echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
+	}
 
         // Formulario para cambiar datos
         echo '<form id="item_modify_form" action="modify_item.php?item=' . urlencode($item) . '" method="post">';
         echo '<label for="nMatricula">Nueva matrícula:</label>';
-        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula) . '" required>';
+        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="marcamodelo">Marca y modelo:</label>';
-        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars($marcamodelo) . '" required>';
+        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars($marcamodelo, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="color">Color:</label>';
-        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color) . '" required>';
+        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="kms">Kilómetros:</label>';
-        echo '<input type="text" id="kms" name="kms" value="' . htmlspecialchars($kms) . '" required>';
+        echo '<input type="text" id="kms" name="kms" value="' . htmlspecialchars($kms, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="cv">Caballos:</label>';
-        echo '<input type="text" id="cv" name="cv" value="' . htmlspecialchars($cv) . '" required>';
+        echo '<input type="text" id="cv" name="cv" value="' . htmlspecialchars($cv, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="anio">Año:</label>';
-        echo '<input type="text" id="anio" name="anio" value="' . htmlspecialchars($anio) . '" required>';
-        echo '<input type="hidden" name="matricula" value="' . htmlspecialchars($item) . '">';
+        echo '<input type="text" id="anio" name="anio" value="' . htmlspecialchars($anio, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="hidden" name="matricula" value="' . htmlspecialchars($item, ENT_QUOTES, 'UTF-8') . '">';
         echo '<button id="item_modify_submit" name="item_modify_submit" type="submit">Guardar Cambios</button>';
         echo '</form>';
         ?>

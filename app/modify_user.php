@@ -113,7 +113,8 @@
         }
 
         // Obtener el usuario a modificar
-        $user = $_GET['user'];
+        // Decodificar y filtrar el parámetro `user`
+        $user = mysqli_real_escape_string($conn, $_GET['user']);
 
         // Variable para controlar el mensaje de error
         $error_message = '';
@@ -157,22 +158,23 @@
         if ($row) {
             // Mostrar el mensaje de error si existe
             if ($error_message) {
-                 echo "<p style='color: red;'>$error_message</p>";
-            }
+    		echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
+		}
+
 
             // Formulario para modificar datos del usuario
             echo '<form id="user_modify_form" action="modify_user.php?user=' . urlencode($user) . '" method="post" onsubmit="return validarFormulario();">';
             echo '<label for="nombre_apellidos">Nombre y apellidos:</label>';
-            echo '<input type="text" id="nombre_apellidos" name="nombre_apellidos" value="' . htmlspecialchars($row['nombre_apellidos']) . '" required>'; 
+            echo '<input type="text" id="nombre_apellidos" name="nombre_apellidos" value="' . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . '" required>'; 
             echo '<label for="dni">DNI:</label>';
-            echo '<input type="text" id="dni" name="dni" value="' . htmlspecialchars($row['dni']) . '" required>'; 
+            echo '<input type="text" id="dni" name="dni" value="' . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . '" required>'; 
             echo '<label for="telefono">Teléfono:</label>';
-            echo '<input type="text" id="telefono" name="telefono" value="' . htmlspecialchars($row['telefono']) . '" required>'; 
+            echo '<input type="text" id="telefono" name="telefono" value="' . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . '" required>'; 
             echo '<label for="fecha_nacimiento">Fecha de Nacimiento:</label>';
-            echo '<input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="' . htmlspecialchars($row['fecha_nacimiento']) . '" required>'; 
+            echo '<input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="' . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . '" required>'; 
             echo '<label for="mail">Email:</label>';
-            echo '<input type="email" id="mail" name="mail" value="' . htmlspecialchars($row['email']) . '" required>'; 
-            echo '<input type="hidden" name="username" value="' . htmlspecialchars($user) . '">';
+            echo '<input type="email" id="mail" name="mail" value="' . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+            echo '<input type="hidden" name="username" value="' . htmlspecialchars($user, ENT_QUOTES, 'UTF-8') . '">';
             echo '<button id="user_modify_submit" type="submit">Guardar Cambios</button>';
             echo '</form>';
         } else {
@@ -182,7 +184,7 @@
     </div>
     
     <nav>
-        <a href="show_user.php?user=<?php echo urlencode($username); ?>">Volver</a>
+        <a href="show_user.php?user=<?php echo urlencode(htmlspecialchars($username)); ?>">Volver</a>
     </nav>
 
     <footer>

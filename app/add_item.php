@@ -166,7 +166,7 @@
     </div>
 
     <nav>
-        <a href="index.php">Inicio</a> <!-- Este es el botón que has solicitado cambiar -->
+        <a href="index.php">Inicio</a> 
     </nav>
 
     <footer>

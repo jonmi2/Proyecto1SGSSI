@@ -113,7 +113,7 @@
                 $query = mysqli_query($conn, "DELETE FROM coches WHERE matricula='$matricula'");
 
                 if ($query) {
-                    echo "<p>El coche con matricula:  '$matricula' ha sido eliminado con éxito.</p>";
+                    echo "<p>El coche con matrícula: '" . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . "' ha sido eliminado con éxito.</p>";
                 } else {
                     echo "<p>Error al eliminar el coche.</p>";
                 }
@@ -123,7 +123,7 @@
             echo "<a href='items.php'>Volver a la lista de Coches</a>";
         } else {
             // Mostrar el mensaje de confirmación antes de eliminar
-            echo "<p>¿Deseas borrar el cohce con matricula:  '$matricula'? En caso de hacerlo no hay vuelta atrás.</p>";
+            echo "<p>¿Deseas borrar el coche con matrícula: '" . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . "'? En caso de hacerlo no hay vuelta atrás.</p>";
             echo "<form method='POST' action=''>
                     <button type='submit' name='item_delete_submit' value='yes'>Sí</button>
                     <button type='submit' name='item_delete_submit' value='no'>No</button>
