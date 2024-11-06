@@ -11,8 +11,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     // Consulta SQL para buscar al usuario
-    $sql = "SELECT username, password FROM usuarios WHERE username = '$username'";
-    $result = mysqli_query($conn, $sql);
+    $stmt = $conn->prepare("SELECT username, password FROM usuarios WHERE username = ?");
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     // Verificar si el usuario existe
     if (mysqli_num_rows($result) > 0) {

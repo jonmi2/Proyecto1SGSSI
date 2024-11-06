@@ -157,32 +157,43 @@
 
             // Verificar si el botón ha sido presionado
             if (isset($_POST['submit'])) {
-                // Obtener datos del formulario
-                $username = $_POST['username'];
-                $nombre_apellidos = $_POST['nombre_apellidos'];
-                $email = $_POST['mail'];
-                $password = $_POST['password']; 
-                $dni = $_POST['dni'];
-                $telefono = $_POST['telefono'];
-                $fecha_nacimiento = $_POST['fecha_nacimiento']; 
+    // Obtener datos del formulario
+    	    $username = $_POST['username'];
+            $nombre_apellidos = $_POST['nombre_apellidos'];
+    	    $email = $_POST['mail'];
+    	    $password = $_POST['password'];
+    	    $dni = $_POST['dni'];
+    	    $telefono = $_POST['telefono'];
+ 	    $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
-                // Preparar la consulta SQL
-                $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
-                        VALUES ('$nombre_apellidos', '$dni', '$telefono', '$fecha_nacimiento', '$email', '$username', '$password')";
+  	    $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-                // Ejecutar la consulta
-                if ($conn->query($sql) === TRUE) {
-                    $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
-                } else {
-                    // Manejo de errores
-                    if ($conn->errno === 1062) { // 1062 es el código de error para duplicados
-                        $mensaje = "<span style='color: red;'>El DNI o el nombre de usuario ya está registrado, prueba con otro.</span>";
-                    } else {
-                        $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros.</span>";
-                    }
-                }
-            }
+     	    $stmt = $conn->prepare($sql);
 
+	    // Verificar si se preparó correctamente
+	    if ($stmt === false) {
+		$mensaje = "<span style='color: red;'>Error en la preparación de la consulta.</span>";
+	    } else {
+		// Enlazar los parámetros (s indica que todos son strings)
+		$stmt->bind_param("sssssss", $nombre_apellidos, $dni, $telefono, $fecha_nacimiento, $email, $username, $password);
+
+		// Ejecutar la consulta
+		if ($stmt->execute()) {
+		    $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
+		} else {
+		    // Manejo de errores
+		    if ($stmt->errno === 1062) { // 1062 es el código de error para duplicados
+		        $mensaje = "<span style='color: red;'>El DNI o el nombre de usuario ya está registrado, prueba con otro.</span>";
+		    } else {
+		        $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros.</span>";
+		    }
+		}
+
+		// Cerrar el statement
+	    $stmt->close();
+    }
+}
             // Cerrar la conexión
             $conn->close();
 

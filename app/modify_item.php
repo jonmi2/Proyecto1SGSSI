@@ -106,9 +106,12 @@
         include 'db.php';  // Conectar a la base de datos
 
         $item = $_GET['item'];
-        $query = mysqli_query($conn, "SELECT * FROM coches WHERE matricula='$item'");
-        $row = mysqli_fetch_assoc($query);
-        
+	$stmt = $conn->prepare("SELECT * FROM coches WHERE matricula = ?");
+	$stmt->bind_param("s", $item);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	$row = $result->fetch_assoc();
+	$stmt->close();
         // Inicializar variable de error
         $error_message = '';
 
@@ -131,37 +134,47 @@
             $anio = $_POST['anio'];
 
             // Ejecuta la consulta de actualización
-            $query = "UPDATE coches SET matricula='$nMatricula', marca_modelo='$marcamodelo', color='$color', kilometros='$kms', CV='$cv', año='$anio' WHERE matricula='$matricula'";
-            $result = mysqli_query($conn, $query);
+            $query = "UPDATE coches SET matricula = ?, marca_modelo = ?, color = ?, kilometros = ?, CV = ?, 	año = ? WHERE matricula = ?";
+    	    $stmt = $conn->prepare($query);
 
-            if ($result) {
-                // Mensaje de éxito
-                 echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
-            } else {
-                // Muestra un mensaje de error
-                if ($conn->errno === 1062) { // 1062 es el código de error para duplicados
-                    $error_message = 'La matrícula ya está registrada, prueba con otra.';
-                } else {
-                    $error_message = 'Error, prueba con otros datos.';
-                }
-            }
+            if ($stmt === false) {
+        echo "<p style='color: red;'>Error en la preparación de la consulta de actualización.</p>";
+    } else {
+        // Enlazar los parámetros
+        $stmt->bind_param("sssssis", $nMatricula, $marcamodelo, $color, $kms, $cv, $anio, $matricula);
+
+        // Ejecutar la consulta
+        if ($stmt->execute()) {
+            echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
         } else {
-            // Si es un GET, carga los datos originales
-            if ($row) {
-                $nMatricula = $row['matricula'];
-                $marcamodelo = $row['marca_modelo'];
-                $color = $row['color'];
-                $kms = $row['kilometros'];
-                $cv = $row['CV'];
-                $anio = $row['año'];
+            // Manejo de errores
+            if ($stmt->errno === 1062) { // Código de error para duplicados
+                $error_message = 'La matrícula ya está registrada, prueba con otra.';
             } else {
-                echo "<p>Item no encontrado.</p>";
+                $error_message = 'Error, prueba con otros datos.';
             }
         }
 
-        // Mostrar mensaje de error si existe
-        if ($error_message) {
-    		echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
+        // Cerrar el statement
+        $stmt->close();
+	    }
+	} else {
+	    // Si es un GET, carga los datos originales
+	    if ($row) {
+		$nMatricula = $row['matricula'];
+		$marcamodelo = $row['marca_modelo'];
+		$color = $row['color'];
+		$kms = $row['kilometros'];
+		$cv = $row['CV'];
+		$anio = $row['año'];
+	    } else {
+		echo "<p>Item no encontrado.</p>";
+	    }
+	}
+
+	// Mostrar mensaje de error si existe
+	if ($error_message) {
+	    echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
 	}
 
         // Formulario para cambiar datos
