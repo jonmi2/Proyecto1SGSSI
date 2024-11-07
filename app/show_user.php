@@ -1,5 +1,5 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -108,26 +108,47 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
     <div class="container">
         <h1>Detalles del Usuario</h1>
         <?php
-        include 'db.php';  // Conectar a la base de datos
+	include 'db.php';  // Conectar a la base de datos
 
-        $user = $_GET['user'];
-        $query = mysqli_query($conn, "SELECT * FROM usuarios WHERE username='$user'");
+	// Verificar si se recibió el usuario en la URL
+	if (isset($_GET['user'])) {
+	    $user = $_GET['user'];
 
-        if ($row = mysqli_fetch_assoc($query)) {
-            echo "<div class='content'>";
-            echo "<p>Nombre: " . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . "</p>";
-            echo "<p>DNI: " . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . "</p>";
-            echo "<p>Teléfono: " . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . "</p>";
-            echo "<p>Fecha de Nacimiento: " . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . "</p>";
-            echo "<p>Email: " . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . "</p>";
-            echo "</div>";
-        } else {
-            echo "<div class='content'><p>Usuario no encontrado.</p></div>";
-        }
+	    // Preparar la consulta para obtener los datos del usuario
+	    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE username = ?");
 
-        // Cerrar la conexión a la base de datos
-        mysqli_close($conn);    
-        ?>
+	    if ($stmt) {
+		// Asociar el parámetro y ejecutarlo
+		$stmt->bind_param('s', $user);
+		$stmt->execute();
+		$result = $stmt->get_result();
+
+		// Verificar si se encontraron resultados
+		if ($row = $result->fetch_assoc()) {
+		    echo "<div class='content'>";
+		    echo "<p>Nombre: " . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . "</p>";
+		    echo "<p>DNI: " . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . "</p>";
+		    echo "<p>Teléfono: " . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . "</p>";
+		    echo "<p>Fecha de Nacimiento: " . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . "</p>";
+		    echo "<p>Email: " . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . "</p>";
+		    echo "</div>";
+		} else {
+		    echo "<div class='content'><p>Usuario no encontrado.</p></div>";
+		}
+
+		// Cerrar la declaración
+		$stmt->close();
+	    } else {
+		echo "<p>Error al preparar la consulta: " . $conn->error . "</p>";
+	    }
+	} else {
+	    echo "<div class='content'><p>No se especificó ningún usuario.</p></div>";
+	}
+
+	// Cerrar la conexión a la base de datos
+	$conn->close();
+?>
+
         <!-- Contenedor para los botones -->
         <div class="button-container">
             <a href="index.php" class="button btn-primary">Inicio (se cerrará la sesión del usuario)</a>

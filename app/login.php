@@ -3,7 +3,7 @@
 include('db.php');
 
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
 
 // Inicializar variable en caso de que haya un error
 $error = "";
