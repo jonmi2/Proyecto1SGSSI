@@ -107,97 +107,103 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
     <h1>Modificar Usuario</h1>
 
     <div class="container">
-        <?php
-        include 'db.php';  // Conectar a la base de datos
+        <<?php
+include 'db.php';  // Conectar a la base de datos
 
-        // Verificar que la conexión a la base de datos sea válida
-        if ($conn === null) {
-            die("No se pudo establecer la conexión a la base de datos.");
-        }
+// Verificar que la conexión a la base de datos sea válida
+if ($conn === null) {
+    die("No se pudo establecer la conexión a la base de datos.");
+}
 
-        // Obtener el usuario a modificar
-        // Decodificar y filtrar el parámetro `user`
-        $user = mysqli_real_escape_string($conn, $_GET['user']);
+// Obtener el usuario a modificar de manera segura
+$user = $_GET['user'];
 
-        // Variable para controlar el mensaje de error
-        $error_message = '';
+// Variable para controlar el mensaje de error
+$error_message = '';
 
-        // Manejo del envío del formulario
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Obtener los datos del formulario
-            $nombreApellidos = mysqli_real_escape_string($conn, $_POST['nombre_apellidos']);
-            $dni = mysqli_real_escape_string($conn, $_POST['dni']);
-            $telefono = mysqli_real_escape_string($conn, $_POST['telefono']);
-            $fechaNacimiento = mysqli_real_escape_string($conn, $_POST['fecha_nacimiento']);
-            $email = mysqli_real_escape_string($conn, $_POST['mail']);
-            $username = mysqli_real_escape_string($conn, $_POST['username']);
+// Manejo del envío del formulario
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Obtener los datos del formulario
+    $nombreApellidos = $_POST['nombre_apellidos'];
+    $dni = $_POST['dni'];
+    $telefono = $_POST['telefono'];
+    $fechaNacimiento = $_POST['fecha_nacimiento'];
+    $email = $_POST['mail'];
+    $username = $_POST['username'];
 
-            // Actualizar los datos en la base de datos
-            $sql = "UPDATE usuarios SET nombre_apellidos='$nombreApellidos', dni='$dni', telefono='$telefono', fecha_nacimiento='$fechaNacimiento', email='$email' WHERE username='$username'";
-            
-            if (mysqli_query($conn, $sql)) {
-                // Mostrar mensaje de éxito
-                echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
+    // Preparar la consulta para actualizar los datos en la base de datos
+    $sql = "UPDATE usuarios SET nombre_apellidos = ?, dni = ?, telefono = ?, fecha_nacimiento = ?, email = ? WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+
+    if ($stmt) {
+        // Asociar los parámetros
+        $stmt->bind_param('ssssss', $nombreApellidos, $dni, $telefono, $fechaNacimiento, $email, $username);
+
+        // Ejecutar la consulta
+        if ($stmt->execute()) {
+            // Mostrar mensaje de éxito
+            echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
+        } else {
+            if ($conn->errno === 1062) { // 1062 es el código de error para duplicados
+                $error_message = 'DNI ya está registrado, prueba con otro.';
             } else {
-                if ($conn->errno === 1062) { // 1062 es el código de error para duplicados
-                    $error_message = 'DNI ya está registrado, prueba con otro.';
-                } else {
-                    $error_message = 'Error, mete otros datos.';
-                }
+                $error_message = 'Error, mete otros datos.';
             }
         }
 
-        // Consulta para obtener los datos del usuario
-        $query = mysqli_query($conn, "SELECT * FROM usuarios WHERE username='$user'");
-        
-        // Manejo de errores en la consulta
-        if (!$query) {
-            die("Error en la consulta: " . mysqli_error($conn));
+        // Cerrar la declaración
+        $stmt->close();
+    } else {
+        $error_message = 'Error al preparar la consulta: ' . $conn->error;
+    }
+}
+
+// Preparar la consulta para obtener los datos del usuario
+$sql = "SELECT * FROM usuarios WHERE username = ?";
+$stmt = $conn->prepare($sql);
+
+if ($stmt) {
+    // Asociar el parámetro y ejecutar la consulta
+    $stmt->bind_param('s', $user);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Comprobar si se encontró el usuario
+    if ($row = $result->fetch_assoc()) {
+        // Mostrar el mensaje de error si existe
+        if ($error_message) {
+            echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
         }
 
-        $row = mysqli_fetch_assoc($query);
+        // Formulario para modificar datos del usuario
+        echo '<form id="user_modify_form" action="modify_user.php?user=' . urlencode($user) . '" method="post" onsubmit="return validarFormulario();">';
+        echo '<label for="nombre_apellidos">Nombre y apellidos:</label>';
+        echo '<input type="text" id="nombre_apellidos" name="nombre_apellidos" value="' . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+        echo '<label for="dni">DNI:</label>';
+        echo '<input type="text" id="dni" name="dni" value="' . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+        echo '<label for="telefono">Teléfono:</label>';
+        echo '<input type="text" id="telefono" name="telefono" value="' . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+        echo '<label for="fecha_nacimiento">Fecha de Nacimiento:</label>';
+        echo '<input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="' . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+        echo '<label for="mail">Email:</label>';
+        echo '<input type="email" id="mail" name="mail" value="' . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . '" required>'; 
+        echo '<input type="hidden" name="username" value="' . htmlspecialchars($user, ENT_QUOTES, 'UTF-8') . '">';
+        echo '<button id="user_modify_submit" type="submit">Guardar Cambios</button>';
+        echo '</form>';
+    } else {
+        echo "<p>Usuario no encontrado.</p>";
+    }
 
-        // Comprobar si se encontró el usuario
-        if ($row) {
-            // Mostrar el mensaje de error si existe
-            if ($error_message) {
-    		echo "<p style='color: red;'>" . htmlspecialchars($error_message) . "</p>";
-		}
+    // Cerrar la declaración
+    $stmt->close();
+} else {
+    die("Error al preparar la consulta: " . $conn->error);
+}
 
+// Cerrar la conexión a la base de datos
+$conn->close();
+?>
 
-            // Formulario para modificar datos del usuario
-            echo '<form id="user_modify_form" action="modify_user.php?user=' . urlencode($user) . '" method="post" onsubmit="return validarFormulario();">';
-            echo '<label for="nombre_apellidos">Nombre y apellidos:</label>';
-            echo '<input type="text" id="nombre_apellidos" name="nombre_apellidos" value="' . htmlspecialchars($row['nombre_apellidos'], ENT_QUOTES, 'UTF-8') . '" required>'; 
-            echo '<label for="dni">DNI:</label>';
-            echo '<input type="text" id="dni" name="dni" value="' . htmlspecialchars($row['dni'], ENT_QUOTES, 'UTF-8') . '" required>'; 
-            echo '<label for="telefono">Teléfono:</label>';
-            echo '<input type="text" id="telefono" name="telefono" value="' . htmlspecialchars($row['telefono'], ENT_QUOTES, 'UTF-8') . '" required>'; 
-            echo '<label for="fecha_nacimiento">Fecha de Nacimiento:</label>';
-            echo '<input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="' . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . '" required>'; 
-            echo '<label for="mail">Email:</label>';
-            echo '<input type="email" id="mail" name="mail" value="' . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . '" required>'; 
-            echo '<input type="hidden" name="username" value="' . htmlspecialchars($user, ENT_QUOTES, 'UTF-8') . '">';
-            echo '<button id="user_modify_submit" type="submit">Guardar Cambios</button>';
-            echo '</form>';
-        } else {
-            echo "<p>Usuario no encontrado.</p>";
-        }
-        ?>
-    </div>
-    
-    <nav>
-        <a href="show_user.php?user=<?php echo urlencode(htmlspecialchars($username)); ?>">Volver</a>
-    </nav>
-
-    <footer>
-        <p>&copy; 2024 Página de Coches. Todos los derechos reservados.</p>
-    </footer>
-    
-    <?php
-    // Cerrar la conexión a la base de datos
-    mysqli_close($conn);
-    ?>
 </body>
 </html>
 
