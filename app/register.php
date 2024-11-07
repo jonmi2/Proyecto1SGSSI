@@ -1,3 +1,6 @@
+<?php
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

@@ -2,6 +2,9 @@
 // Incluir el archivo de conexión a la base de datos
 include('db.php');
 
+
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+
 // Inicializar variable en caso de que haya un error
 $error = "";
 
