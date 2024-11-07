@@ -1,29 +1,79 @@
-<?php
-  echo '<h1>Yeah, it works!<h1>';
-  // phpinfo();
-  $hostname = "db";
-  $username = "admin";
-  $password = "test";
-  $db = "database";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Coches</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
 
-  $conn = mysqli_connect($hostname,$username,$password,$db);
-  if ($conn->connect_error) {
-    die("Database connection failed: " . $conn->connect_error);
-  }
+        h1 {
+            text-align: center;
+            color: #444;
+            padding: 20px;
+            background-color: #fff;
+            margin: 0;
+            border-bottom: 2px solid #ddd;
+        }
 
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #007BFF;
+            padding: 15px;
+        }
 
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 20px;
+            padding: 10px 20px;
+            background-color: #0069d9;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
 
-$query = mysqli_query($conn, "SELECT * FROM usuarios")
-   or die (mysqli_error($conn));
+        nav a:hover {
+            background-color: #0056b3;
+        }
 
-while ($row = mysqli_fetch_array($query)) {
-  echo
-   "<tr>
-    <td>{$row['id']}</td>
-    <td>{$row['nombre']}</td>
-   </tr>";
-   
+        .content {
+            text-align: center;
+            padding: 40px;
+        }
 
-}
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 2px solid #ddd;
+            margin-top: 40px;
+            color: #777;
+        }
 
-?>
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Página de Coches</h1>
+
+    <nav>
+        <a href="register.php">Registro</a>
+        <a href="login.php">Login</a>
+        <a href="items.php">Items</a>
+    </nav>
+
+    <footer>
+        <p>&copy; 2024 Página de Coches. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
+

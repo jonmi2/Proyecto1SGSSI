@@ -24,33 +24,49 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Estructura de tabla para la tabla `coches`
 --
 
+CREATE TABLE `coches` (
+  `marca_modelo` text NOT NULL,
+  `matricula` VARCHAR(7) NOT NULL,
+  `color` text NOT NULL,
+  `kilometros` int NOT NULL,
+  `CV` int NOT NULL,
+  `año` int NOT NULL
+
+  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `usuarios` (
-  `id` int(11) NOT NULL,
-  `nombre` text NOT NULL
+  `nombre_apellidos` TEXT NOT NULL,
+  `dni` VARCHAR(9) NOT NULL,
+  `telefono` VARCHAR(9) NOT NULL,
+  `fecha_nacimiento` DATE NOT NULL,
+  `email` VARCHAR(55) NOT NULL,
+  `username` VARCHAR(25)  NOT NULL,
+  `password`  VARCHAR(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`id`, `nombre`) VALUES
-(1, 'mikel'),
-(2, 'aitor');
+INSERT INTO `coches` (`matricula`, `marca_modelo`, `color`, `kilometros`,`CV`,`año`) VALUES
+('1234BBC', 'kia miraz 5.7L V8', 'azul', 123454333,140,'2013'),
+('3563DBF', 'seat grandes 1.2 TSI', 'negro', 199933,130,'2001');
 
 --
 -- Índices para tablas volcadas
 --
 
 --
--- Indices de la tabla `usuarios`
+-- Indices de la tabla `coches`
 --
-ALTER TABLE `usuarios`
-  ADD PRIMARY KEY (`id`);
-COMMIT;
+ALTER TABLE `coches` ADD PRIMARY KEY (`matricula`);
 
+ALTER TABLE `usuarios` ADD PRIMARY KEY (`dni`), ADD UNIQUE KEY (`username`);
+COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
