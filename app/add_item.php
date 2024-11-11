@@ -185,11 +185,11 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
         echo '<label for="color">Color:</label>';
         echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="kms">Kilómetros:</label>';
-        echo '<input type="text" id="kms" name="kms" value="' . htmlspecialchars($kms, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="numbers" id="kms" name="kms" value="' . htmlspecialchars($kms, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="cv">Caballos:</label>';
-        echo '<input type="text" id="cv" name="cv" value="' . htmlspecialchars($cv, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="numbers" id="cv" name="cv" value="' . htmlspecialchars($cv, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="anio">Año:</label>';
-        echo '<input type="text" id="anio" name="anio" value="' . htmlspecialchars($anio, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="numbers" id="anio" name="anio" value="' . htmlspecialchars($anio, ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<button id="item_add_submit" name="item_add_submit" type="submit">Agregar Coche</button>';
         echo '</form>';
         ?>
