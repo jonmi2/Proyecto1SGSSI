@@ -1,105 +1,12 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';");
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Agregar Coche</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
-
-        h1 {
-            text-align: center;
-            color: #444;
-            padding: 20px;
-            background-color: #fff;
-            margin: 0;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin: 10px 0 5px;
-            font-weight: bold;
-        }
-
-        input {
-            padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-top: 2px solid #ddd;
-            margin-top: 20px;
-        }
-
-        footer p {
-            margin: 0;
-            color: #777;
-        }
-
-        nav {
-            text-align: center;
-            background-color: #f8f9fa;
-            padding: 15px 0;
-            border-top: 2px solid #ddd;
-        }
-
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 20px;
-            padding: 10px 20px;
-            background-color: #0069d9; /* Color del botón */
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-
-        nav a:hover {
-            background-color: #0056b3; /* Color del botón al pasar el ratón */
-        }
-    </style>
+    <link rel="stylesheet" href="add_item.css">
     <script src="comprobaciones.js"></script>
 </head>
 <body>
@@ -120,53 +27,52 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Obtén los valores del formulario
-            $nMatricula = $_POST['nMatricula'];
-            $marcamodelo = $_POST['marcamodelo'];
-            $color = $_POST['color'];
-            $kms = $_POST['kms'];
-            $cv = $_POST['cv'];
-            $anio = $_POST['anio'];
-
-	// Validación del formato para `marcamodelo` (letras, números, y espacios permitidos)
-	if (!preg_match('/^[\p{L}\p{N}\s-]{1,30}$/u', $marcamodelo)) {
-    		$error_message = 'Marca y modelo sólo puede contener letras, números y espacios.';
-	}
-
-	// Validación para `color` (solo letras)
-	if (!preg_match('/^[\p{L}\s]{1,20}$/u', $color)) {
-    		$error_message = 'Color sólo debe contener letras y espacios.';
-	}
-
-
-            // Validación del formato de la matrícula usando una expresión regular en PHP
-    	if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) 
-    	{
-        $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (por ejemplo, 1234ABC).';
-    	} 
-    	else 
-    	{
-        	// Usar una consulta preparada para insertar los datos en la base de datos
+            $nMatricula = filter_input(INPUT_POST, 'nMatricula', FILTER_SANITIZE_STRING);
+    $marcamodelo = filter_input(INPUT_POST, 'marcamodelo', FILTER_SANITIZE_STRING);
+    $color = filter_input(INPUT_POST, 'color', FILTER_SANITIZE_STRING);
+    $kms = filter_input(INPUT_POST, 'kms', FILTER_VALIDATE_INT);
+    $cv = filter_input(INPUT_POST, 'cv', FILTER_VALIDATE_INT);
+    $anio = filter_input(INPUT_POST, 'anio', FILTER_VALIDATE_INT);
+   
+   
+    // Validar campos
+    if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula))
+    {
+        $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (ej. 1234ABC).';
+    }
+    elseif (!preg_match('/^[\p{L}\p{N}\s-]{1,30}$/u', $marcamodelo))
+    {
+        $error_message = 'Marca y modelo sólo puede contener letras, números y espacios.';
+    }
+    elseif (!preg_match('/^[\p{L}\s]{1,20}$/u', $color))
+    {
+        $error_message = 'Color sólo debe contener letras y espacios.';
+    }
+   
+    else
+    {
+        // Usar una consulta preparada para insertar los datos en la base de datos
                 $query = "INSERT INTO coches (matricula, marca_modelo, color, kilometros, CV, año) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($query);
 
-                if ($stmt) 
+                if ($stmt)
                 {
                     // Ligar los parámetros a la consulta
                     // "sssiii" indica que los tres primeros son cadenas de texto y los tres últimos son enteros
                     $stmt->bind_param("sssiii", $nMatricula, $marcamodelo, $color, $kms, $cv, $anio);
 
                     // Ejecutar la consulta y verificar el resultado
-                    if ($stmt->execute()) 
+                    if ($stmt->execute())
                     {
                         echo "<p style='color: green;'>Coche añadido correctamente.</p>";
-                    } 
-                    else 
+                    }
+                    else
                     {
-                        if ($conn->errno === 1062) 
+                        if ($conn->errno === 1062)
                         {
                             $error_message = 'La matrícula ya está registrada, prueba con otra.';
-                        } 
-                        else 
+                        }
+                        else
                         {
                             $error_message = 'Error, prueba con otros datos.';
                         }
@@ -174,14 +80,14 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
 
                     // Cerrar el statement
                     $stmt->close();
-                } 
-                else 
+                }
+                else
                 {
                     $error_message = 'Error al preparar la consulta.';
                 }
-        }	
-    	}
-        
+        }
+    }
+       
         // Mostrar mensaje de error si existe
         if ($error_message) {
             echo "<p style='color: red;'>" . htmlspecialchars($error_message, ENT_QUOTES, 'UTF-8') . "</p>";
@@ -207,13 +113,13 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
     </div>
 
     <nav>
-        <a href="index.php">Inicio</a> 
+        <a href="index.php">Inicio</a>
     </nav>
 
     <footer>
         <p>&copy; 2024 Página de Coches. Todos los derechos reservados.</p>
     </footer>
-    
+   
 </body>
 </html>
 
