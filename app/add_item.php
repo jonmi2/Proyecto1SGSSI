@@ -127,6 +127,17 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
             $cv = $_POST['cv'];
             $anio = $_POST['anio'];
 
+	// Validación del formato para `marcamodelo` (letras, números, y espacios permitidos)
+	if (!preg_match('/^[\p{L}\p{N}\s-]{1,30}$/u', $marcamodelo)) {
+    		$error_message = 'Marca y modelo sólo puede contener letras, números y espacios.';
+	}
+
+	// Validación para `color` (solo letras)
+	if (!preg_match('/^[\p{L}\s]{1,20}$/u', $color)) {
+    		$error_message = 'Color sólo debe contener letras y espacios.';
+	}
+
+
             // Validación del formato de la matrícula usando una expresión regular en PHP
     	if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) 
     	{
@@ -179,17 +190,17 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
         // Formulario para agregar nuevos datos
         echo '<form id="item_add_form" action="add_item.php" method="post" onsubmit="return validarMatricula();">';
         echo '<label for="nMatricula">Matrícula:</label>';
-        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars($nMatricula, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars(strip_tags($nMatricula), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="marcamodelo">Marca y modelo:</label>';
-        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars($marcamodelo, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="text" id="marcamodelo" name="marcamodelo" value="' . htmlspecialchars(strip_tags($marcamodelo), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="color">Color:</label>';
-        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars($color, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="text" id="color" name="color" value="' . htmlspecialchars(strip_tags($color), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="kms">Kilómetros:</label>';
-        echo '<input type="number" id="kms" name="kms" value="' . htmlspecialchars($kms, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="number" id="kms" name="kms" value="' . htmlspecialchars(strip_tags($kms), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="cv">Caballos:</label>';
-        echo '<input type="number" id="cv" name="cv" value="' . htmlspecialchars($cv, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="number" id="cv" name="cv" value="' . htmlspecialchars(strip_tags($cv), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="anio">Año:</label>';
-        echo '<input type="number" id="anio" name="anio" value="' . htmlspecialchars($anio, ENT_QUOTES, 'UTF-8') . '" required>';
+        echo '<input type="number" id="anio" name="anio" value="' . htmlspecialchars(strip_tags($anio), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<button id="item_add_submit" name="item_add_submit" type="submit">Agregar Coche</button>';
         echo '</form>';
         ?>
