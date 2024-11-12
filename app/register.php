@@ -1,6 +1,15 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+session_start(); // Iniciar sesión para manejar el token CSRF
+
+// Paso 1: Generar el Token CSRF y Guardarlo en la Sesión cada vez que se carga la página
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Genera un token CSRF único
+}
+
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'self';");
+header("X-Frame-Options: SAMEORIGIN");
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -36,6 +45,9 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
             <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
             <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" required>
 
+            <!-- Paso 2: Incluir el Token CSRF en el Formulario HTML -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
             <button id="register_submit" name="submit" type="submit">Registrarse</button>
         </form>
 
@@ -59,45 +71,53 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
                 die("Conexión fallida: " . $conn->connect_error);
             }
 
-            // Verificar si el botón ha sido presionado
-            if (isset($_POST['submit'])) {
-    // Obtener datos del formulario
-    	    $username = $_POST['username'];
-            $nombre_apellidos = $_POST['nombre_apellidos'];
-    	    $email = $_POST['mail'];
-    	    $password = $_POST['password'];
-    	    $dni = $_POST['dni'];
-    	    $telefono = $_POST['telefono'];
- 	    $fecha_nacimiento = $_POST['fecha_nacimiento'];
+            // Paso 3: Verificar el Token CSRF en el Servidor
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
+                if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                    die("Error: CSRF token inválido.");
+                }
 
-  	    $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
+                // Eliminar el token CSRF después de su validación (para seguridad adicional)
+                unset($_SESSION['csrf_token']);
 
-     	    $stmt = $conn->prepare($sql);
+                // Obtener datos del formulario
+                $username = $_POST['username'];
+                $nombre_apellidos = $_POST['nombre_apellidos'];
+                $email = $_POST['mail'];
+                $password = $_POST['password'];
+                $dni = $_POST['dni'];
+                $telefono = $_POST['telefono'];
+                $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
-	    // Verificar si se preparó correctamente
-	    if ($stmt === false) {
-		$mensaje = "<span style='color: red;'>Error en la preparación de la consulta.</span>";
-	    } else {
-		// Enlazar los parámetros (s indica que todos son strings)
-		$stmt->bind_param("sssssss", $nombre_apellidos, $dni, $telefono, $fecha_nacimiento, $email, $username, $password);
+                $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-		// Ejecutar la consulta
-		if ($stmt->execute()) {
-		    $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
-		} else {
-		    // Manejo de errores
-		    if ($stmt->errno === 1062) { // 1062 es el código de error para duplicados
-		        $mensaje = "<span style='color: red;'>El DNI o el nombre de usuario ya está registrado, prueba con otro.</span>";
-		    } else {
-		        $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros.</span>";
-		    }
-		}
+                $stmt = $conn->prepare($sql);
 
-		// Cerrar el statement
-	    $stmt->close();
-    }
-}
+                // Verificar si se preparó correctamente
+                if ($stmt === false) {
+                    $mensaje = "<span style='color: red;'>Error en la preparación de la consulta.</span>";
+                } else {
+                    // Enlazar los parámetros (s indica que todos son strings)
+                    $stmt->bind_param("sssssss", $nombre_apellidos, $dni, $telefono, $fecha_nacimiento, $email, $username, $password);
+
+                    // Ejecutar la consulta
+                    if ($stmt->execute()) {
+                        $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
+                    } else {
+                        // Manejo de errores
+                        if ($stmt->errno === 1062) { // 1062 es el código de error para duplicados
+                            $mensaje = "<span style='color: red;'>El DNI o el nombre de usuario ya está registrado, prueba con otro.</span>";
+                        } else {
+                            $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros.</span>";
+                        }
+                    }
+
+                    // Cerrar el statement
+                    $stmt->close();
+                }
+            }
+
             // Cerrar la conexión
             $conn->close();
 

@@ -49,6 +49,7 @@ function comprobarFormato() {
 
 // Función para validar el formulario antes de enviarlo
 function validarFormulario() {
+	console.log("Llamada a validarFormulario");
     return comprobarFormato(); // Llama a la función comprobarFormato
 }
 

@@ -1,5 +1,13 @@
 <?php
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+session_start(); // Asegúrate de iniciar la sesión
+
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self';");
+header("X-Frame-Options: SAMEORIGIN");
+
+// Genera un token CSRF si no existe
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Token aleatorio de 32 bytes
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -26,6 +34,16 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
         $error_message = '';
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+         // Verificar que el token CSRF está presente y es válido
+    	if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) 
+    	{
+        	die("Error: CSRF token inválido.");
+    	}
+    	
+    	// Eliminar el token CSRF de la sesión después de su uso
+        unset($_SESSION['csrf_token']); // Elimina el token CSRF de la sesión
+
+        
             // Obtén los valores del formulario
             $nMatricula = filter_input(INPUT_POST, 'nMatricula', FILTER_SANITIZE_STRING);
     $marcamodelo = filter_input(INPUT_POST, 'marcamodelo', FILTER_SANITIZE_STRING);
@@ -95,6 +113,7 @@ header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-sr
 
         // Formulario para agregar nuevos datos
         echo '<form id="item_add_form" action="add_item.php" method="post" onsubmit="return validarMatricula();">';
+        echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') . '">';
         echo '<label for="nMatricula">Matrícula:</label>';
         echo '<input type="text" id="nMatricula" name="nMatricula" value="' . htmlspecialchars(strip_tags($nMatricula), ENT_QUOTES, 'UTF-8') . '" required>';
         echo '<label for="marcamodelo">Marca y modelo:</label>';

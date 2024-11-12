@@ -97,9 +97,14 @@ if ($stmt) {
         echo '<input type="hidden" name="username" value="' . htmlspecialchars($user, ENT_QUOTES, 'UTF-8') . '">';
         echo '<button id="user_modify_submit" type="submit">Guardar Cambios</button>';
         echo '</form>';
+        echo '<div class="view-user-button-container">';
+                echo '<a href="show_user.php?user=' . urlencode($user) . '"><button id="view_user_button" type="button">Volver a ver datos del usuario</button></a>';
+                echo '</div>';
     } else {
         echo "<p>Usuario no encontrado.</p>";
     }
+    
+   
 
     // Cerrar la declaración
     $stmt->close();

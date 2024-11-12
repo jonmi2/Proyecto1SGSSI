@@ -2,13 +2,28 @@
 // Incluir el archivo de conexión a la base de datos
 include('db.php');
 
+session_start(); // Iniciar sesión para manejar el token CSRF
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+// Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Genera un token CSRF único
+}
+
+header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self';");
+header("X-Frame-Options: SAMEORIGIN");
 
 // Inicializar variable en caso de que haya un error
 $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Paso 3: Verificar el Token CSRF en el Servidor
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Error: CSRF token inválido.");
+    }
+
+    // Eliminar el token CSRF después de su validación (Paso 4)
+    unset($_SESSION['csrf_token']); // Eliminar el token de la sesión
+
     // Obtener el nombre de usuario y la contraseña desde el formulario
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
@@ -25,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $row = mysqli_fetch_assoc($result);
         
         // Verificar si la contraseña es correcta
-         if ($password == $row['password']) {         
-            //Inicio de sesión exitoso
+        if ($password == $row['password']) {         
+            // Inicio de sesión exitoso
             header("Location: show_user.php?user=" . urlencode($username));
         } else {
             $error = "Contraseña incorrecta";
@@ -58,18 +73,22 @@ mysqli_close($conn);
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password" required>
 
+            <!-- Paso 2: Incluir el Token CSRF en el Formulario HTML -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+
             <button id="login_submit" type="submit">Iniciar Sesión</button>
         </form>
-	<!-- Mostrar errores en caso de haberlos en ROJO -->
-        <?php if ($error): ?>
-    		<p style="color: red;"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
-	<?php endif; ?>
 
+        <!-- Mostrar errores en caso de haberlos en ROJO -->
+        <?php if ($error): ?>
+            <p style="color: red;"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
+        <?php endif; ?>
     </div>
-	
+
     <nav>
         <a href="index.php">Inicio</a>
     </nav>
+
     <footer>
         <p>&copy; Ander-Iker-Jon-Andoni-Mikel-Asier </p>
     </footer>
