@@ -1,6 +1,8 @@
 <?php
+ini_set('session.cookie_httponly', 1);
 session_start(); // Asegúrate de iniciar la sesión
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self';");
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
+header("X-Frame-Options: SAMEORIGIN");
 
 // Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
 if (empty($_SESSION['csrf_token'])) {

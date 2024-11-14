@@ -1,7 +1,7 @@
 <?php
 // Incluir el archivo de conexión a la base de datos
 include('db.php');
-
+ini_set('session.cookie_httponly', 1);
 session_start(); // Iniciar sesión para manejar el token CSRF
 
 // Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
@@ -9,7 +9,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Genera un token CSRF único
 }
 
-header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self';");
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
 
 // Inicializar variable en caso de que haya un error
