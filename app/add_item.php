@@ -3,6 +3,7 @@ session_start(); // Asegúrate de iniciar la sesión
 
 header("Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'self';");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
 
 // Genera un token CSRF si no existe
 if (empty($_SESSION['csrf_token'])) {
@@ -57,14 +58,18 @@ if (empty($_SESSION['csrf_token'])) {
     if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula))
     {
         $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (ej. 1234ABC).';
+        log_mensaje("Intento de añadir coche fallido: Matricula erronea.");
     }
     elseif (!preg_match('/^[\p{L}\p{N}\s-]{1,30}$/u', $marcamodelo))
     {
         $error_message = 'Marca y modelo sólo puede contener letras, números y espacios.';
+        log_mensaje("Intento de añadir coche fallido: marcamodelo erronea");
+
     }
     elseif (!preg_match('/^[\p{L}\s]{1,20}$/u', $color))
     {
         $error_message = 'Color sólo debe contener letras y espacios.';
+        log_mensaje("Intento de añadir coche fallido: color erroneo");
     }
    
     else
@@ -83,16 +88,19 @@ if (empty($_SESSION['csrf_token'])) {
                     if ($stmt->execute())
                     {
                         echo "<p style='color: green;'>Coche añadido correctamente.</p>";
+                        log_mensaje("Intento de añadir coche correcto");
                     }
                     else
                     {
                         if ($conn->errno === 1062)
                         {
                             $error_message = 'La matrícula ya está registrada, prueba con otra.';
+                             log_mensaje("Intento de añadir coche fallido: matricula repe");
                         }
                         else
                         {
                             $error_message = 'Error, prueba con otros datos.';
+                            log_mensaje("Intento de añadir coche fallido: datos erroneos");
                         }
                     }
 
