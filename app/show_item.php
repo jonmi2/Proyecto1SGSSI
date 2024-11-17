@@ -2,6 +2,7 @@
 
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -38,6 +39,7 @@ if (isset($_GET['item'])) {
             echo "<p><strong>Kilómetros:</strong> " . htmlspecialchars($row['kilometros'], ENT_QUOTES, 'UTF-8') . " km</p>";
             echo "<p><strong>Caballos de fuerza (CV):</strong> " . htmlspecialchars($row['CV'], ENT_QUOTES, 'UTF-8') . "</p>";
             echo "<p><strong>Año:</strong> " . htmlspecialchars($row['año'], ENT_QUOTES, 'UTF-8') . "</p>";
+            log_mensaje("Ver coche con matricula".htmlspecialchars($row['matricula'], ENT_QUOTES, 'UTF-8').".");
         } else {
             echo "<p class='not-found'>Coche no encontrado.</p>";
         }

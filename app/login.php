@@ -1,6 +1,7 @@
 <?php
 // Incluir el archivo de conexión a la base de datos
 include('db.php');
+include 'logs.php';
 ini_set('session.cookie_httponly', 1);
 session_start(); // Iniciar sesión para manejar el token CSRF
 
@@ -39,15 +40,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Obtener el registro del usuario (asi encontramos la contra buscando por el numero de fila)
         $row = mysqli_fetch_assoc($result);
         
-        // Verificar si la contraseña es correcta
-        if ($password == $row['password']) {         
+        // Paso 5: Verificar la contraseña utilizando password_verify()
+        if (password_verify($password, $row['password'])) {         
             // Inicio de sesión exitoso
             header("Location: show_user.php?user=" . urlencode($username));
+            log_mensaje("Intento de logearse correcto de usuario ". htmlspecialchars($username, ENT_QUOTES, 'UTF-8') . ".");
         } else {
             $error = "Contraseña incorrecta";
+            log_mensaje("Intento de logearse incorrecto de usuario ". htmlspecialchars($username, ENT_QUOTES, 'UTF-8') . " por contraseña incorrecta.");
         }
     } else {
         $error = "Usuario no encontrado";
+        log_mensaje("Intento de logearse en un usuario inexistente.");
     }
 }
 
@@ -94,4 +98,3 @@ mysqli_close($conn);
     </footer>
 </body>
 </html>
-

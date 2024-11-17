@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
+
 ?>
 
 <!DOCTYPE html>
@@ -90,6 +92,9 @@ header("X-Frame-Options: SAMEORIGIN");
                 $telefono = $_POST['telefono'];
                 $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
+                // Encriptar la contraseña
+    		$password_hash = password_hash($password, PASSWORD_BCRYPT);  // Encriptación de la contraseña
+                
                 $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
                         VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -100,17 +105,20 @@ header("X-Frame-Options: SAMEORIGIN");
                     $mensaje = "<span style='color: red;'>Error en la preparación de la consulta.</span>";
                 } else {
                     // Enlazar los parámetros (s indica que todos son strings)
-                    $stmt->bind_param("sssssss", $nombre_apellidos, $dni, $telefono, $fecha_nacimiento, $email, $username, $password);
+                    $stmt->bind_param("sssssss", $nombre_apellidos, $dni, $telefono, $fecha_nacimiento, $email, $username, $password_hash);
 
                     // Ejecutar la consulta
                     if ($stmt->execute()) {
                         $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
+                        log_mensaje("Usuario registrado correctamente");
                     } else {
                         // Manejo de errores
                         if ($stmt->errno === 1062) { // 1062 es el código de error para duplicados
                             $mensaje = "<span style='color: red;'>El DNI o el nombre de usuario ya está registrado, prueba con otro.</span>";
+                            log_mensaje("Intento de registro de usuario incorrecto: DNI duplicado");
                         } else {
-                            $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros.</span>";
+                            $mensaje = "<span style='color: red;'>Error con el formato de los datos introducidos, prueba con otros .</span>";
+                            log_mensaje("Intento de registro de usuario incorrecto: formato de datos incorrectos " . $stmt->error);
                         }
                     }
 

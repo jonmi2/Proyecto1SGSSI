@@ -1,7 +1,7 @@
 <?php
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
-
+include 'logs.php';
 session_start(); // Iniciar sesión para manejar el token CSRF
 
 // Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
@@ -59,20 +59,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Validación de la entrada
     if (!preg_match('/^[0-9]{4}[A-Z]{3}$/', $nMatricula)) {
         $error_message = 'La matrícula debe tener el formato de 4 números seguidos de 3 letras en mayúscula (ej. 1234ABC).';
+        log_mensaje("Intento de editar coche fallido por matricula incorrecta");
     }
 
     if (!preg_match('/^[\p{L}\p{N}\s-]{1,30}$/u', $marcamodelo)) {
         $error_message = 'Marca y modelo solo pueden contener letras, números y espacios.';
+        log_mensaje("Intento de editar coche fallido por marcamodelo incorrecto");
     }
 
     if (!preg_match('/^[\p{L}\s]{1,20}$/u', $color)) {
         $error_message = 'El color solo debe contener letras y espacios.';
+        log_mensaje("Intento de editar coche fallido por formato de color incorrecto");
     }
 
     if (!filter_var($kms, FILTER_VALIDATE_INT, ["options" => ["min_range" => 0]]) ||
         !filter_var($cv, FILTER_VALIDATE_INT, ["options" => ["min_range" => 0]]) ||
         !filter_var($anio, FILTER_VALIDATE_INT, ["options" => ["min_range" => 1886]])) {
-        $error_message = 'Kilómetros, caballos y año deben ser enteros positivos válidos.';
+        $error_message = 'Kilómetros, caballos y año deben ser enteros positivos válidos. (kms y cv >0 y año > 1886)';
+        log_mensaje("Intento de editar coche fallido por formato de kms o cv o año incorrecto");
     }
 
     // Si no hay errores, proceder con la actualización
@@ -89,12 +93,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Ejecutar la consulta
             if ($stmt->execute()) {
                 echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
+                log_mensaje("Coche editado");
             } else {
                 // Manejo de errores
                 if ($stmt->errno === 1062) { // Código de error para duplicados
                     $error_message = 'La matrícula ya está registrada, prueba con otra.';
+                    log_mensaje("Intento de editar coche fallido por matricula duplicada");
                 } else {
                     $error_message = 'Error, prueba con otros datos.';
+                    log_mensaje("Intento de editar coche fallido por datos con formato incorrecto");
                 }
             }
 

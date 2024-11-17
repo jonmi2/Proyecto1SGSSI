@@ -3,6 +3,7 @@ ini_set('session.cookie_httponly', 1);
 session_start(); // Asegúrate de iniciar la sesión
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
 
 // Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
 if (empty($_SESSION['csrf_token'])) {
@@ -57,8 +58,11 @@ if (empty($_SESSION['csrf_token'])) {
                     
                     if ($stmt->execute()) {
                         echo "<p>El coche con matrícula: '" . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . "' ha sido eliminado con éxito.</p>";
+                        log_mensaje("Coche con matrícula " . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . "ha sido eliminado con éxito.");
                     } else {
                         echo "<p>Error al eliminar el coche.</p>";
+                        log_mensaje("Error al eliminar el coche con matricula " . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . " .");
+
                     }
 
                     // Cerrar la declaración
@@ -68,6 +72,8 @@ if (empty($_SESSION['csrf_token'])) {
                 }
             } else {
                 echo "<p>No se ha borrado nada.</p>";
+                log_mensaje("Coche con matrícula  '" . htmlspecialchars($matricula, ENT_QUOTES, 'UTF-8') . "' ha decidido no eliminarse.");
+
             }
             echo "<a href='items.php'>Volver a la lista de Coches</a>";
         } else {

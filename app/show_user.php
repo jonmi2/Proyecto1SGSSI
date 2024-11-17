@@ -1,6 +1,7 @@
 <?php
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -38,6 +39,7 @@ header("X-Frame-Options: SAMEORIGIN");
 		    echo "<p>Fecha de Nacimiento: " . htmlspecialchars($row['fecha_nacimiento'], ENT_QUOTES, 'UTF-8') . "</p>";
 		    echo "<p>Email: " . htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8') . "</p>";
 		    echo "</div>";
+		    log_mensaje("Ver usuario con usermname".htmlspecialchars($user, ENT_QUOTES, 'UTF-8').".");
 		} else {
 		    echo "<div class='content'><p>Usuario no encontrado.</p></div>";
 		}

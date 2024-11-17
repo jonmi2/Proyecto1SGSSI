@@ -6,7 +6,8 @@ services:     # Clave principal que agrupa los servicios
     environment:
       - ALLOW_OVERRIDE=true
     ports:
-      - "81:80"
+      - "81:80"     # Puerto HTTP
+      - "444:443"   # Puerto HTTPS
     links:
       - db
     volumes:
@@ -35,4 +36,3 @@ services:     # Clave principal que agrupa los servicios
       MYSQL_USER: admin
       MYSQL_PASSWORD: test
       MYSQL_DATABASE: database
-

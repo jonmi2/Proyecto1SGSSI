@@ -1,6 +1,7 @@
 <?php
 header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
+include 'logs.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -51,11 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->execute()) {
             // Mostrar mensaje de éxito
             echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
+            log_mensaje("usuario modificado correctamente.");
         } else {
             if ($conn->errno === 1062) { // 1062 es el código de error para duplicados
                 $error_message = 'DNI ya está registrado, prueba con otro.';
+                log_mensaje("Intento de editar ususario fallido: DNI duplicado.");
             } else {
                 $error_message = 'Error, mete otros datos.';
+                log_mensaje("Intento de editar ususario fallido: Datos con formato erroneo.");
             }
         }
 
