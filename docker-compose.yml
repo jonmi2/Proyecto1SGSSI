@@ -5,6 +5,8 @@ services:     # Clave principal que agrupa los servicios
     image: web
     environment:
       - ALLOW_OVERRIDE=true
+    env_file:
+      - .env  
     ports:
       - "81:80"     # Puerto HTTP
       - "444:443"   # Puerto HTTPS
@@ -19,10 +21,11 @@ services:     # Clave principal que agrupa los servicios
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: test
-      MYSQL_DATABASE: database
+        MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+        MYSQL_USER: ${MYSQL_USER} 
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD} 
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+
     ports:
       - "8889:3306"
 
@@ -33,6 +36,7 @@ services:     # Clave principal que agrupa los servicios
     ports:
       - "8890:80"
     environment:
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: test
-      MYSQL_DATABASE: database
+        MYSQL_USER: ${MYSQL_USER}  
+        MYSQL_PASSWORD: ${MYSQL_PASSWORD}  
+        MYSQL_DATABASE: ${MYSQL_DATABASE}
+
