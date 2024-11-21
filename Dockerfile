@@ -1,7 +1,13 @@
 FROM php:7.2.2-apache
 
-# Cambiar los repositorios de Debian a una versión más reciente
+# Cambiar los repositorios de Debian a una versión más reciente (porq me da problemas docker)
 RUN sed -i 's/stretch/buster/g' /etc/apt/sources.list
+
+# Instalar gnupg para gestionar claves GPG (porq me da problemas docker)
+RUN apt-get update && apt-get install -y gnupg
+
+# Agregar las claves GPG faltantes (porq me da problemas docker)
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 112695A0E562B32A 54404762BBB6E853 648ACFD622F3D138 0E98404D386FA1D9 DCC9EFBF77E11517
 
 # Instala herramientas necesarias y extensiones PHP
 RUN apt-get update && apt-get install -y openssl && docker-php-ext-install mysqli
