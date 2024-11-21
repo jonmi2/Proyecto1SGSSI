@@ -1,7 +1,11 @@
 FROM php:7.2.2-apache
 
+# Cambiar los repositorios de Debian a una versión más reciente
+RUN sed -i 's/stretch/buster/g' /etc/apt/sources.list
+
 # Instala herramientas necesarias y extensiones PHP
 RUN apt-get update && apt-get install -y openssl && docker-php-ext-install mysqli
+
 
 # Deshabilita el encabezado X-Powered-By de PHP
 RUN echo "expose_php = Off" >> /usr/local/etc/php/php.ini
@@ -22,3 +26,4 @@ COPY apache-ssl.conf /etc/apache2/sites-available/000-default.conf
 # Habilita el sitio y reinicia Apache
 RUN a2ensite 000-default.conf && \
     service apache2 restart
+        
