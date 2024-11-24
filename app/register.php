@@ -2,12 +2,12 @@
 ini_set('session.cookie_httponly', 1);
 session_start(); // Iniciar sesión para manejar el token CSRF
 
-// Paso 1: Generar el Token CSRF y Guardarlo en la Sesión cada vez que se carga la página
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+// Paso 1: Verificar si el token CSRF existe en la sesión, si no, generarlo
+if (!isset($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Genera un token CSRF único
 }
 
-header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
 include 'logs.php';
 
@@ -63,8 +63,8 @@ include 'logs.php';
             // Conexión a la base de datos
             $servername = "db";
             $username_db = "admin";  // Cambiar por tu usuario de MySQL
-            $password_db = "test";      // Cambiar por tu contraseña de MySQL
-            $dbname = "database";  // Nombre de tu base de datos
+            $password_db = "test";   // Cambiar por tu contraseña de MySQL
+            $dbname = "database";    // Nombre de tu base de datos
 
             // Crear conexión
             $conn = new mysqli($servername, $username_db, $password_db, $dbname);
@@ -76,12 +76,13 @@ include 'logs.php';
 
             // Paso 3: Verificar el Token CSRF en el Servidor
             if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
-                if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-                    die("Error: CSRF token inválido.");
+                if (!isset($_POST['csrf_token'])) {
+                    die("Error: CSRF token inválido: !isset");
                 }
-
-                // Eliminar el token CSRF después de su validación (para seguridad adicional)
-                unset($_SESSION['csrf_token']);
+                
+                if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+                    die("Error: CSRF token inválido: desigual");
+                }
 
                 // Obtener datos del formulario
                 $username = $_POST['username'];
@@ -93,8 +94,8 @@ include 'logs.php';
                 $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
                 // Encriptar la contraseña
-    		$password_hash = password_hash($password, PASSWORD_BCRYPT);  // Encriptación de la contraseña
-                
+                $password_hash = password_hash($password, PASSWORD_BCRYPT);  // Encriptación de la contraseña
+
                 $sql = "INSERT INTO usuarios (nombre_apellidos, dni, telefono, fecha_nacimiento, email, username, password) 
                         VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -111,6 +112,8 @@ include 'logs.php';
                     if ($stmt->execute()) {
                         $mensaje = "<span style='color: green;'>Registro exitoso.</span>"; // Mensaje de éxito
                         log_mensaje("Usuario registrado correctamente");
+
+                        // No regenerar el token CSRF aquí, solo se mantiene el token actual para la próxima solicitud
                     } else {
                         // Manejo de errores
                         if ($stmt->errno === 1062) { // 1062 es el código de error para duplicados
@@ -145,4 +148,5 @@ include 'logs.php';
     </footer>
 </body>
 </html>
+
 

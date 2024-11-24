@@ -1,10 +1,10 @@
 <?php
-header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self';base-uri 'self';form-action 'self'");
+header("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; img-src 'self'; style-src 'self'; base-uri 'self'; form-action 'self'");
 header("X-Frame-Options: SAMEORIGIN");
 include 'logs.php';
 session_start(); // Iniciar sesión para manejar el token CSRF
 
-// Paso 1: Generar el Token CSRF y Guardarlo en la Sesión
+// Paso 1: Generar el Token CSRF y Guardarlo en la Sesión si no existe
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Genera un token CSRF único
 }
@@ -40,12 +40,13 @@ $anio = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Paso 3: Verificar el Token CSRF en el Servidor
-    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
-        die("Error: CSRF token inválido.");
+    if (!isset($_POST['csrf_token'])) {
+        die("Error: CSRF token inválido. !isset");
     }
-
-    // Eliminar el token CSRF después de su validación (Paso 4)
-    unset($_SESSION['csrf_token']); // Eliminar el token de la sesión
+    
+    if ($_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("Error: CSRF token inválido; desigual");
+    }
 
     // Obtener los valores del formulario
     $matricula = $_POST['matricula'];
@@ -92,6 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Ejecutar la consulta
             if ($stmt->execute()) {
+                // Si la operación fue exitosa, regenerar el token CSRF
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32)); // Regenerar el token
+
                 echo "<p style='color: green;'>Cambios guardados correctamente.</p>";
                 log_mensaje("Coche editado");
             } else {
@@ -167,14 +171,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <button id="item_modify_submit" name="item_modify_submit" type="submit">Guardar Cambios</button>
         </form>
     </div>
+	<nav>
+    	<a href="index.php">Inicio</a>
+	</nav>
 
-    <nav>
-        <a href="index.php">Inicio</a>
-    </nav>
+<footer>
+    <p>&copy; 2024 Página de Coches. Todos los derechos reservados.</p>
+</footer>
 
-    <footer>
-        <p>&copy; 2024 Página de Coches. Todos los derechos reservados.</p>
-    </footer>
+    
 </body>
 </html>
+
+
 
